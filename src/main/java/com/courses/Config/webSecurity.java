@@ -1,5 +1,6 @@
 package com.courses.Config;
 
+import com.courses.Filter.JwtAuthenticationFilter;
 import com.courses.Services.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -20,6 +22,8 @@ public class webSecurity extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private CustomUserDetailsService customerUserDetails;
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     //
     @Override
@@ -31,6 +35,8 @@ public class webSecurity extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .anyRequest().authenticated()
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
     // which authentication we want to use in memory or database or userservice
@@ -43,6 +49,7 @@ public class webSecurity extends WebSecurityConfigurerAdapter {
     public PasswordEncoder passwordEncoder() {
         return NoOpPasswordEncoder.getInstance();
     }
+
     @Bean
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
